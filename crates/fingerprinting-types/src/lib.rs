@@ -18,7 +18,7 @@ pub struct Money {
 pub struct RawTransaction {
     pub bic: String,
     pub amount: Money,
-    pub date_time: DateTime<Utc>
+    pub date_time: DateTime<Utc>,
 }
 
 impl From<(Dec19x19, &str)> for Money {

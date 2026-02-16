@@ -32,7 +32,8 @@ impl<P: FingerprintProtocol<Fr> + Sync> FingerprintService<P> {
 }
 
 impl<P: FingerprintProtocol<Fr> + Send + Sync + 'static>
-    net::pso::transaction_fingerprinting::fingerprint::v1::FingerprintService for FingerprintService<P>
+    net::pso::transaction_fingerprinting::fingerprint::v1::FingerprintService
+    for FingerprintService<P>
 {
     async fn compute_single_fingerprint(
         &self,
@@ -167,7 +168,9 @@ mod dto_convert {
         }
     }
 
-    impl TryInto<RawTransaction> for net::pso::transaction_fingerprinting::fingerprint::v1::TransactionFingerprintData {
+    impl TryInto<RawTransaction>
+        for net::pso::transaction_fingerprinting::fingerprint::v1::TransactionFingerprintData
+    {
         type Error = Status;
 
         fn try_into(self) -> Result<RawTransaction, Self::Error> {
@@ -234,21 +237,25 @@ mod tests {
     pub async fn test_fingerprint_computation() -> Result<(), anyhow::Error> {
         let tx_date = Utc::now();
 
-        let transaction_data = net::pso::transaction_fingerprinting::fingerprint::v1::TransactionFingerprintData {
-            bic: FastStr::new("BCEELU21"),
-            amount: Some(net::pso::transaction_fingerprinting::common::v1::Money {
-                currency: net::pso::transaction_fingerprinting::common::v1::Currency::CURRENCY_EUR,
-                units: 1000,
-                atto: 0,
+        let transaction_data =
+            net::pso::transaction_fingerprinting::fingerprint::v1::TransactionFingerprintData {
+                bic: FastStr::new("BCEELU21"),
+                amount: Some(net::pso::transaction_fingerprinting::common::v1::Money {
+                    currency:
+                        net::pso::transaction_fingerprinting::common::v1::Currency::CURRENCY_EUR,
+                    units: 1000,
+                    atto: 0,
+                    _unknown_fields: Default::default(),
+                }),
+                date_time: Some(
+                    net::pso::transaction_fingerprinting::common::v1::Timestamp {
+                        seconds: tx_date.timestamp() as u64,
+                        nanos: tx_date.timestamp_subsec_nanos(),
+                        _unknown_fields: Default::default(),
+                    },
+                ),
                 _unknown_fields: Default::default(),
-            }),
-            date_time: Some(net::pso::transaction_fingerprinting::common::v1::Timestamp {
-                seconds: tx_date.timestamp() as u64,
-                nanos: tx_date.timestamp_subsec_nanos(),
-                _unknown_fields: Default::default(),
-            }),
-            _unknown_fields: Default::default(),
-        };
+            };
 
         println!("Transaction data: {:?}", transaction_data);
         println!("Requesting the fingerprint computation... from cooperative agents");

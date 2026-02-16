@@ -12,7 +12,9 @@ use halo2_axiom::halo2curves::group::GroupEncoding;
 use pilota::Bytes;
 use volo_grpc::{Code, Request, Response, Status};
 
-use net::pso::transaction_fingerprinting::fingerprint::agent::v1::{CooperationRequest, CooperationResponse};
+use net::pso::transaction_fingerprinting::fingerprint::agent::v1::{
+    CooperationRequest, CooperationResponse,
+};
 
 pub struct CooperationAgentService {
     agent_secret_shard: Fr,
@@ -26,7 +28,9 @@ impl CooperationAgentService {
     }
 }
 
-impl net::pso::transaction_fingerprinting::fingerprint::agent::v1::CooperationService for CooperationAgentService {
+impl net::pso::transaction_fingerprinting::fingerprint::agent::v1::CooperationService
+    for CooperationAgentService
+{
     async fn compute_exponent(
         &self,
         req: Request<CooperationRequest>,

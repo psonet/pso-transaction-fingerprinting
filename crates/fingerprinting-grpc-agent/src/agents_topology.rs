@@ -1,4 +1,6 @@
-use crate::net::pso::transaction_fingerprinting::fingerprint::agent::v1::{CooperationRequest, CooperationServiceClient};
+use crate::net::pso::transaction_fingerprinting::fingerprint::agent::v1::{
+    CooperationRequest, CooperationServiceClient,
+};
 use anyhow::Error;
 use fingerprinting_core::AgentsTopology;
 use halo2_axiom::halo2curves::bn256::{Fr, G1Compressed, G1};

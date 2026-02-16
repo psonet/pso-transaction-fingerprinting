@@ -1,9 +1,9 @@
-use std::sync::Arc;
 use clap::Parser;
 use fingerprinting_grpc_agent::{net, CooperationAgentService};
 use halo2_axiom::halo2curves::bn256::Fr;
 use hocon::HoconLoader;
 use serde_derive::Deserialize;
+use std::sync::Arc;
 //use std::net::SocketAddr;
 use volo::net::Address;
 use volo_grpc::codegen::futures;

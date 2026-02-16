@@ -3,6 +3,9 @@ mod protocols;
 pub mod secret_sharing;
 
 use crate::components::{DateTimeRaw, ScalarComponent, SqueezeComponent};
+pub use crate::protocols::{
+    AgentsTopology, CollaborativeProtocol, FingerprintProtocol, NaiveProtocol,
+};
 use anyhow::{anyhow, Error};
 use bytes::{BufMut, Bytes, BytesMut};
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
@@ -12,14 +15,11 @@ use components::{
 };
 use fingerprinting_types::RawTransaction;
 use halo2_axiom::halo2curves::bn256::{Fr, G1};
-use halo2_axiom::halo2curves::ff::{PrimeField as PF};
+use halo2_axiom::halo2curves::ff::PrimeField as PF;
 use halo2_axiom::halo2curves::group::GroupEncoding;
+use pso_poseidon::{Poseidon, PoseidonHasher};
 use std::io::Write;
 use std::marker::PhantomData;
-use pso_poseidon::{Poseidon, PoseidonHasher};
-pub use crate::protocols::{
-    AgentsTopology, CollaborativeProtocol, FingerprintProtocol, NaiveProtocol,
-};
 
 // Base Epoch used for offsetting dates components
 pub(crate) static EPOCH: NaiveDateTime = NaiveDateTime::new(
@@ -248,8 +248,11 @@ impl<F: PF> TryFrom<RawTransaction> for TransactionFingerprintData<F> {
         // We are not using WWD anymore
         let transaction_date = tx.date_time.date_naive();
 
-        let dt_raw_data =
-            DateTimeRaw::new(tx.date_time, transaction_date, (money.amount_base, money.amount_atto));
+        let dt_raw_data = DateTimeRaw::new(
+            tx.date_time,
+            transaction_date,
+            (money.amount_base, money.amount_atto),
+        );
 
         let date_time = DateTimeComponent::new(dt_raw_data);
 

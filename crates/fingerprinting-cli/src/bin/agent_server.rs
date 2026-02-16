@@ -1,6 +1,6 @@
-use std::sync::Arc;
 use clap::Parser;
 use fingerprinting_cli::config::{FingerprintServiceConfig, GrpcConfig};
+use fingerprinting_cli::HealthRegistryService;
 use fingerprinting_core::{CollaborativeProtocol, Compact, NaiveProtocol};
 use fingerprinting_grpc::{net as fp, FingerprintService};
 use fingerprinting_grpc_agent::{net as fp_agent, CooperationAgentService, GrpcAgentsTopology};
@@ -9,10 +9,10 @@ use grpc_health_checking::HealthRegistry;
 use halo2_axiom::halo2curves::bn256::Fr;
 use hocon::HoconLoader;
 use serde_derive::Deserialize;
+use std::sync::Arc;
 use volo::net::Address;
 use volo_grpc::codegen::futures;
 use volo_grpc::server::{Server, ServiceBuilder};
-use fingerprinting_cli::HealthRegistryService;
 
 #[derive(Parser, Debug)]
 #[command(name = "fingerprinting-agent")]

@@ -1,6 +1,6 @@
 use crate::components::FingerprintComponent;
-use std::io::Write;
 use primitive_types::U256;
+use std::io::Write;
 
 #[derive(Debug)]
 pub struct AmountComponent {

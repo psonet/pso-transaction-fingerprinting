@@ -3,9 +3,9 @@ use crate::EPOCH;
 use anyhow::{anyhow, Error};
 use chrono::{DateTime, NaiveDate, Utc};
 use halo2_axiom::halo2curves::bn256::Fr;
-use std::io::Write;
 use primitive_types::U256;
 use pso_poseidon::{Poseidon, PoseidonHasher};
+use std::io::Write;
 
 pub type Amount = (u64, u64);
 
