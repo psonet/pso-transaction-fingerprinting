@@ -185,15 +185,30 @@ jobs:
       - name: Build release
         run: cargo build --verbose --release --all-features
 
-      - name: Prepare bin artifacts
+      - name: Prepare bin artifacts (named by OS and arch to avoid release conflicts)
         shell: bash
         run: |
           mkdir -p staging
+          OS="$RUNNER_OS"
+          ARCH="${RUNNER_ARCH:-X64}"
+          case "$ARCH" in
+            X64)   ARCH_FN=x86_64 ;;
+            ARM64) ARCH_FN=aarch64 ;;
+            X86)   ARCH_FN=x86 ;;
+            ARM)   ARCH_FN=arm ;;
+            *)     ARCH_FN="$ARCH" ;;
+          esac
+          case "$OS" in
+            Linux)  OS_FN=linux ;;
+            Windows) OS_FN=windows ;;
+            macOS)  OS_FN=macos ;;
+            *)      OS_FN="$OS" ;;
+          esac
           for bin in fingerprinting-agent fingerprinting-light-agent; do
-            if [ "$RUNNER_OS" = "Windows" ]; then
-              [ -f "target/release/${bin}.exe" ] && cp "target/release/${bin}.exe" "staging/"
+            if [ "$OS" = "Windows" ]; then
+              [ -f "target/release/${bin}.exe" ] && cp "target/release/${bin}.exe" "staging/${bin}-${OS_FN}-${ARCH_FN}.exe"
             else
-              [ -f "target/release/${bin}" ] && cp "target/release/${bin}" "staging/"
+              [ -f "target/release/${bin}" ] && cp "target/release/${bin}" "staging/${bin}-${OS_FN}-${ARCH_FN}"
             fi
           done
           (cd staging && ls -la)
