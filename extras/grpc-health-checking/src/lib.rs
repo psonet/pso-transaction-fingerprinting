@@ -1,4 +1,5 @@
-// hide generated values in private module
+// hide generated values in private module (volo-generated code)
+#[allow(clippy::clone_on_ref_ptr, clippy::single_match_else)]
 mod generator {
     include!(concat!(env!("OUT_DIR"), "/proto_gen.rs"));
 }
@@ -17,14 +18,9 @@ pub trait HealthStatus {
     fn is_serving(&self) -> bool;
 }
 
+#[derive(Default)]
 pub struct HealthRegistry {
     services: Vec<Arc<dyn HealthStatus + Send + Sync>>,
-}
-
-impl Default for HealthRegistry {
-    fn default() -> Self {
-        Self { services: vec![] }
-    }
 }
 
 impl HealthRegistry {
@@ -61,7 +57,7 @@ impl Health for HealthRegistry {
                     }))
                 }
             })
-            .last();
+            .next_back();
 
         result.ok_or(Status::not_found("Service not found"))?
     }
@@ -81,7 +77,7 @@ impl Health for HealthRegistry {
 
         let (tx, rx) = mpsc::channel(16);
 
-        let service = service.clone();
+        let service = Arc::clone(service);
 
         tokio::spawn(async move {
             let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(10));

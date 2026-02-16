@@ -1,6 +1,7 @@
 mod agents_topology;
 
-// hide generated values in private module
+// hide generated values in private module (volo-generated code)
+#[allow(clippy::clone_on_ref_ptr, clippy::single_match_else)]
 mod generator {
     include!(concat!(env!("OUT_DIR"), "/proto_gen.rs"));
 }

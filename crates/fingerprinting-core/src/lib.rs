@@ -27,7 +27,7 @@ pub(crate) static EPOCH: NaiveDateTime = NaiveDateTime::new(
     NaiveTime::from_hms_opt(0, 0, 0).unwrap(),
 );
 
-pub const HASH_TO_CURVE_PREFIX: &'static str = "CRA_FINGERPRINT";
+pub const HASH_TO_CURVE_PREFIX: &str = "CRA_FINGERPRINT";
 
 pub trait HashSqueeze<F: PF> {
     fn squeeze(&self) -> Result<F, Error>;
@@ -103,14 +103,14 @@ where
 {
     fn compact(&self) -> String;
 
-    fn unwrap(compacted: &String) -> Result<Self, Error>;
+    fn unwrap(compacted: &str) -> Result<Self, Error>;
 }
 
 impl<P: FingerprintProtocol<Fr> + Sync> Fingerprint<Fr, P> for TransactionFingerprintData<Fr> {
     async fn complete_fingerprint(&self, via_protocol: &P) -> Result<Fr, Error> {
         let date_time = self.datetime_fingerprint(via_protocol).await?;
 
-        self.fingerprint(date_time, PhantomData::<P>::default())
+        self.fingerprint(date_time, PhantomData::<P>)
     }
 
     async fn datetime_fingerprint(&self, via_protocol: &P) -> Result<Fr, Error> {
@@ -124,7 +124,7 @@ impl<P: FingerprintProtocol<Fr> + Sync> Fingerprint<Fr, P> for TransactionFinger
         let fingerprint_size = TransactionFingerprintData::<Fr>::fingerprint_size();
         let buffer = BytesMut::with_capacity(fingerprint_size);
         let mut writer = buffer.writer();
-        writer.write(&[0xFF, 0xFE, 0xED, 0xDD, 0xCC, 0x00, 0xDD, 0xEE])?; // Prefix for serialization
+        writer.write_all(&[0xFF, 0xFE, 0xED, 0xDD, 0xCC, 0x00, 0xDD, 0xEE])?; // Prefix for serialization
 
         let date_time = ScalarComponent::<Fr, 32>::new(date_time);
         let bic = &self.bic;
@@ -153,7 +153,7 @@ impl Compact for Bytes {
         bs58::encode(&self).into_string()
     }
 
-    fn unwrap(compacted: &String) -> Result<Bytes, Error> {
+    fn unwrap(compacted: &str) -> Result<Bytes, Error> {
         let bytes = bs58::decode(&compacted).into_vec()?;
 
         Ok(Bytes::copy_from_slice(&bytes))
@@ -165,8 +165,8 @@ impl Compact for Fr {
         bs58::encode(&self.to_bytes()).into_string()
     }
 
-    fn unwrap(compacted: &String) -> Result<Self, Error> {
-        let bytes = bs58::decode(&compacted).into_vec()?;
+    fn unwrap(compacted: &str) -> Result<Self, Error> {
+        let bytes = bs58::decode(compacted).into_vec()?;
         let fixed_bytes = bytes.first_chunk::<32>().ok_or(anyhow!(
             "failed to decode Fr from compacted string, given array is less than 32 bytes long"
         ))?;
@@ -207,7 +207,7 @@ impl<F: PF> TransactionFingerprintData<F> {
             amount,
             currency,
             date_time,
-            _p: PhantomData::default(),
+            _p: PhantomData,
         }
     }
 
@@ -216,15 +216,15 @@ impl<F: PF> TransactionFingerprintData<F> {
     }
 
     pub fn amount(&self) -> (u64, u64) {
-        self.amount.raw().clone()
+        *self.amount.raw()
     }
 
     pub fn currency_code(&self) -> u16 {
-        self.currency.raw().clone()
+        *self.currency.raw()
     }
 
     pub fn date_time(&self) -> &DateTime<Utc> {
-        unimplemented!()
+        self.date_time_component().raw().date_time()
     }
 
     pub fn date_time_component(&self) -> &DateTimeComponent {
@@ -238,7 +238,9 @@ impl<F: PF> TryFrom<RawTransaction> for TransactionFingerprintData<F> {
     fn try_from(tx: RawTransaction) -> Result<Self, Self::Error> {
         let money = tx.amount;
 
-        let iso_currency_code = u16::from_str_radix(&money.currency, 10)
+        let iso_currency_code = money
+            .currency
+            .parse::<u16>()
             .map_err(|_| anyhow!("Currency code should be numeric"))?;
 
         let bic = BankIdentifierComponent::new(tx.bic.to_string());

@@ -21,6 +21,10 @@ struct Args {
 }
 
 fn main() -> Result<()> {
+    env_logger::Builder::from_default_env()
+        .filter_level(log::LevelFilter::Info)
+        .init();
+
     let args = Args::parse();
     let mut rng = OsRng;
 
@@ -30,10 +34,10 @@ fn main() -> Result<()> {
 
     let shares_set = secret_sharing.get_shares();
 
-    println!("Random secret: {}", random_secret.compact());
-    println!("Shares:");
+    log::info!("Random secret: {}", random_secret.compact());
+    log::info!("Shares:");
     for (agent, secret) in shares_set.iter() {
-        println!("== share {}: {}", agent, secret.compact());
+        log::info!("== share {}: {}", agent, secret.compact());
     }
 
     Ok(())

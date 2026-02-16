@@ -61,7 +61,7 @@ impl<T: AgentsTopology<Fr, G1> + Sync> FingerprintProtocol<Fr>
     for CollaborativeProtocol<Fr, G1, T>
 {
     async fn process(&self, unblinded: Fr) -> Result<Fr, Error> {
-        let mut rng = OsRng::default();
+        let mut rng = OsRng;
 
         log::debug!("Processing unblinded value: {}", unblinded.compact());
 
@@ -79,11 +79,11 @@ impl<T: AgentsTopology<Fr, G1> + Sync> FingerprintProtocol<Fr>
 
         // Collect the threshold responses from agents
         let mut responses = futures::stream::iter(1..=self.topology.count())
-            .filter(|agent| ready(agent.clone() != self.agent))
+            .filter(|agent| ready(*agent != self.agent))
             .map(|i| {
-                let agent = i.clone();
+                let agent = i;
                 self.topology
-                    .obtain_shard(i, 0, blinded_hash.clone())
+                    .obtain_shard(i, 0, blinded_hash)
                     .map_err(move |e| {
                         log::error!("Error while getting shard from agent {}: {}", agent, e);
                         e
@@ -91,7 +91,7 @@ impl<T: AgentsTopology<Fr, G1> + Sync> FingerprintProtocol<Fr>
                     .map_ok_or_else(|_| (0, G1::generator()), |v| v) // Todo add logging here
             })
             .buffer_unordered(1024) // TODO parametrize concurrency
-            .filter(|(p, _)| ready(p.clone() > 0))
+            .filter(|(p, _)| ready(*p > 0))
             .take(self.topology.threshold() - 1) // Since we already have one response from self.agent
             .collect::<Vec<(usize, G1)>>()
             .await;
@@ -103,7 +103,7 @@ impl<T: AgentsTopology<Fr, G1> + Sync> FingerprintProtocol<Fr>
         }
 
         // Precompute cooperative agents indexes
-        let indices = responses.iter().map(|(p, _)| p.clone()).collect::<Vec<_>>();
+        let indices = responses.iter().map(|(p, _)| *p).collect::<Vec<_>>();
 
         log::debug!(
             "Got {} results from other agents: {:?}",

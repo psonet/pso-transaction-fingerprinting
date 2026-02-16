@@ -24,7 +24,7 @@ impl GrpcAgentsTopology {
             .map(|(position, addr)| {
                 let clients_for_addr = GrpcAgentsTopology::build_client(addr).unwrap_or_default();
 
-                (position.clone(), clients_for_addr)
+                (*position, clients_for_addr)
             })
             .collect();
 
@@ -40,7 +40,7 @@ impl GrpcAgentsTopology {
     ) -> Result<Vec<CooperationServiceClient>, anyhow::Error> {
         let clients = remote_address
             .to_socket_addrs()?
-            .map(|address| GrpcAgentsTopology::get_client(address))
+            .map(GrpcAgentsTopology::get_client)
             .collect::<Vec<_>>();
 
         Ok(clients)

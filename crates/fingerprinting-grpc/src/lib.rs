@@ -1,4 +1,5 @@
-// hide generated values in private module
+// hide generated values in private module (volo-generated code)
+#[allow(clippy::clone_on_ref_ptr, clippy::single_match_else)]
 mod generator {
     include!(concat!(env!("OUT_DIR"), "/proto_gen.rs"));
 }
@@ -76,11 +77,11 @@ impl<P: FingerprintProtocol<Fr> + Send + Sync + 'static>
     {
         let request = req.into_inner();
         let tx_data = request.transaction_batch;
-        let protocol = self.protocol.clone();
+        let protocol = Arc::clone(&self.protocol);
 
         let mut stream = futures::stream::iter(tx_data)
             .map(move |item: Item| {
-                let protocol = protocol.clone();
+                let protocol = Arc::clone(&protocol);
                 async move {
                     let item_id = item.item_id;
                     let raw_tx = item.transaction_data.ok_or(Status::new(
@@ -145,8 +146,9 @@ mod dto_convert {
         type Error = anyhow::Error;
 
         fn try_into(self) -> Result<DateTime<Utc>, Self::Error> {
-            DateTime::from_timestamp(self.seconds as i64, self.nanos)
-                .ok_or(anyhow!("Timestamp is not valid"))
+            let secs = i64::try_from(self.seconds)
+                .map_err(|_| anyhow!("Timestamp seconds out of range"))?;
+            DateTime::from_timestamp(secs, self.nanos).ok_or(anyhow!("Timestamp is not valid"))
         }
     }
 

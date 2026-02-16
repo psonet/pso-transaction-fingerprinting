@@ -28,8 +28,8 @@ impl<F: PrimeField> SecretSharing<F> {
             let mut share = coefficients[0];
             let mut x_power = x;
 
-            for j in 1..t {
-                share += coefficients[j] * x_power;
+            for coeff in coefficients.iter().take(t).skip(1) {
+                share += *coeff * x_power;
                 x_power *= x;
             }
             shares.insert(i, share);

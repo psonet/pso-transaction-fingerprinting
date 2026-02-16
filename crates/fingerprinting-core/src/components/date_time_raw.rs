@@ -24,6 +24,10 @@ impl DateTimeRaw {
             amount,
         }
     }
+
+    pub fn date_time(&self) -> &DateTime<Utc> {
+        &self.date_time
+    }
 }
 
 #[derive(Debug)]
@@ -47,9 +51,9 @@ impl FingerprintComponent<DateTimeRaw, 32> for DateTimeComponent {
         let squeezed = self.squeeze()?;
         let bytes = squeezed.to_bytes();
 
-        let written = buffer.write(&bytes)?;
+        buffer.write_all(&bytes)?;
 
-        debug_assert_eq!(written, Self::size());
+        debug_assert_eq!(bytes.len(), Self::size());
         Ok(())
     }
 
@@ -74,16 +78,18 @@ impl SqueezeComponent<Fr> for DateTimeComponent {
             return Err(anyhow!("Date cannot be earlier than Epoch: 01.01.2025"));
         }
 
-        let seconds_since_epoch = U256::from(seconds_since_epoch as u64);
+        let seconds_since_epoch =
+            U256::from(u64::try_from(seconds_since_epoch).expect("validated non-negative above"));
         let days_since_epoch = self.raw.wwd.signed_duration_since(EPOCH.date()).num_days();
 
-        if days_since_epoch < 0 || days_since_epoch > u32::MAX as i64 {
+        if days_since_epoch < 0 || days_since_epoch > i64::from(u32::MAX) {
             return Err(anyhow!(
                 "World Wide Date cannot be earlier than Epoch: 01.01.2025"
             ));
         }
 
-        let days_since_epoch = U256::from(days_since_epoch as u64);
+        let days_since_epoch =
+            U256::from(u64::try_from(days_since_epoch).expect("validated in range [0, u32::MAX]"));
 
         // Calculating pair function
         let paired_data = cantor_pair_function(seconds_since_epoch, full_amount / days_since_epoch);

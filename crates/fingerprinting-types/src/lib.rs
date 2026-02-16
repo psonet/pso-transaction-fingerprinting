@@ -22,10 +22,11 @@ pub struct RawTransaction {
 }
 
 impl From<(Dec19x19, &str)> for Money {
-    #[allow(clippy::cast_possible_truncation)]
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     fn from(value: (Dec19x19, &str)) -> Self {
         let amount = value.0;
         let currency = value.1.to_string();
+        // Amount is expected non-negative in monetary context
         Money {
             amount_base: (amount.repr / FRAC_SCALE_I128) as u64,
             amount_atto: (amount.repr % FRAC_SCALE_I128) as u64 / 10,
@@ -38,7 +39,7 @@ impl From<(i32, &str)> for Money {
     fn from(value: (i32, &str)) -> Self {
         let currency = value.1.to_string();
         Money {
-            amount_base: value.0.unsigned_abs() as u64,
+            amount_base: u64::from(value.0.unsigned_abs()),
             amount_atto: 0,
             currency,
         }
@@ -48,7 +49,7 @@ impl From<(u32, &str)> for Money {
     fn from(value: (u32, &str)) -> Self {
         let currency = value.1.to_string();
         Money {
-            amount_base: value.0 as u64,
+            amount_base: u64::from(value.0),
             amount_atto: 0,
             currency,
         }
