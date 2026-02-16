@@ -1,6 +1,6 @@
 [package]
 name = "fingerprinting-cli"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 [dependencies]
@@ -23,8 +23,8 @@ grpc-health-checking.workspace = true
 
 clap = { version = "4.5", features = ["derive"] }
 
-volo = "0.11"
-volo-grpc = "0.11"
+volo = "0.12"
+volo-grpc = "0.12"
 
 log.workspace = true
 env_logger = "0.11"

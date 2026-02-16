@@ -1,6 +1,6 @@
 [package]
 name = "fingerprinting-grpc-agent"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 rust-version.workspace = true
 
@@ -11,13 +11,13 @@ halo2-axiom.workspace = true
 anyhow.workspace = true
 tokio.workspace = true
 
-volo = "0.11"
-volo-grpc = "0.11"
-volo-build = "0.11"
-pilota = "0.12"
+volo = "0.12"
+volo-grpc = "0.12"
+volo-build = "0.12"
+pilota = "0.13"
 tokio-stream = "0.1.17"
 futures = "0.3"
 rand = "0.8.5"
 
 [build-dependencies]
-volo-build = "0.11"
+volo-build = "0.12"
