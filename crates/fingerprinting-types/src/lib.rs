@@ -22,6 +22,8 @@ pub struct RawTransaction {
 }
 
 impl From<(Dec19x19, &str)> for Money {
+
+    #[allow(clippy::cast_possible_truncation)]
     fn from(value: (Dec19x19, &str)) -> Self {
         let amount = value.0;
         let currency = value.1.to_string();
@@ -37,7 +39,7 @@ impl From<(i32, &str)> for Money {
     fn from(value: (i32, &str)) -> Self {
         let currency = value.1.to_string();
         Money {
-            amount_base: value.0.abs() as u64,
+            amount_base: value.0.unsigned_abs() as u64,
             amount_atto: 0,
             currency,
         }
@@ -57,7 +59,7 @@ impl From<(i64, &str)> for Money {
     fn from(value: (i64, &str)) -> Self {
         let currency = value.1.to_string();
         Money {
-            amount_base: value.0.abs() as u64,
+            amount_base: value.0.unsigned_abs(),
             amount_atto: 0,
             currency,
         }
