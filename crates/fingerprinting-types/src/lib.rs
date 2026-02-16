@@ -22,7 +22,6 @@ pub struct RawTransaction {
 }
 
 impl From<(Dec19x19, &str)> for Money {
-
     #[allow(clippy::cast_possible_truncation)]
     fn from(value: (Dec19x19, &str)) -> Self {
         let amount = value.0;
