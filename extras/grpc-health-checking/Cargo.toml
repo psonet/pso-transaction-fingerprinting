@@ -1,0 +1,24 @@
+[package]
+name = "grpc-health-checking"
+version = "0.1.0"
+edition = "2021"
+rust-version.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+tokio.workspace = true
+chrono.workspace = true
+
+volo = "0.11"
+volo-grpc = "0.11"
+volo-build = "0.11"
+pilota = "0.12"
+tokio-stream = "0.1.17"
+futures = "0.3"
+time = "0.3.44"
+
+[build-dependencies]
+volo-build = "0.11"
+
+[dev-dependencies]
+lazy_static = "1.5"

@@ -1,0 +1,9 @@
+target
+/clients/java/src
+/clients/go
+/clients/kotlin/src
+/clients/python
+/.secrets
+Cargo.lock
+/.idea
+.DS_Store

@@ -1,0 +1,12 @@
+version: v2
+modules:
+  - path: crates/fingerprinting-grpc/proto
+    name: buf.build/outbe/fingerprinting
+
+lint:
+  use:
+    - STANDARD
+
+breaking:
+  use:
+    - FILE
