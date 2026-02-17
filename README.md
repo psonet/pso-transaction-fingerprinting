@@ -375,10 +375,9 @@ transaction-fingerprinting/
 │   ├── fingerprinting-cli/           # CLI tools and agent servers
 │   ├── fingerprinting-grpc/          # gRPC service definitions
 │   ├── fingerprinting-grpc-agent/    # Agent cooperation protocol
-│   ├── fingerprinting-poseidon/      # Poseidon hash implementation
 │   └── fingerprinting-types/         # Common type definitions
 ├── examples/                         # Configuration examples
-└── Cargo.toml                       # Workspace configuration
+└── Cargo.toml                        # Workspace configuration
 ```
 
 ### Adding New Features
@@ -401,7 +400,7 @@ transaction-fingerprinting/
 
 ### Performance Optimizations
 - [x] Parallel agent communication
-- [ ] Connection pooling
+- [x] Connection pooling
 
 ## Contributing
 
@@ -419,7 +418,6 @@ GNU General Public License v3.0 (GPLv3) - see the [LICENSE](LICENSE) file for de
 
 For questions and support:
 - Create an issue on GitHub
-- Contact: anton@devlab.co
 
 ---
 
