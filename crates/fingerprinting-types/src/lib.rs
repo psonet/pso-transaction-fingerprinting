@@ -3,13 +3,27 @@ use derive_builder::Builder;
 use fixed_num::Dec19x19;
 use fixed_num_helper::FRAC_SCALE_I128;
 
+pub mod currencies {
+    pub use iso4217_static::*;
+}
+
 // Amount with currency representation
-#[derive(Default, Builder, Debug, Clone, PartialEq)]
+#[derive(Builder, Debug, Clone, PartialEq)]
 #[builder(setter(into))]
 pub struct Money {
     pub amount_base: u64,
     pub amount_atto: u64,
-    pub currency: String,
+    pub currency: currencies::Currency,
+}
+
+impl Default for Money {
+    fn default() -> Self {
+        Money {
+            amount_base: 0,
+            amount_atto: 0,
+            currency: currencies::Currency::Afghani,
+        }
+    }
 }
 
 // Raw Transaction representation
@@ -21,58 +35,97 @@ pub struct RawTransaction {
     pub date_time: DateTime<Utc>,
 }
 
-impl From<(Dec19x19, &str)> for Money {
+impl TryFrom<(Dec19x19, &str)> for Money {
+    type Error = anyhow::Error;
+
     #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-    fn from(value: (Dec19x19, &str)) -> Self {
+    fn try_from(value: (Dec19x19, &str)) -> Result<Self, Self::Error> {
         let amount = value.0;
-        let currency = value.1.to_string();
-        // Amount is expected non-negative in monetary context
-        Money {
+        let currency = currencies::Currency::try_from(value.1).map_err(|_| {
+            anyhow::anyhow!(
+                "Provided invalid currency code: {}, expected ISO 4217 code",
+                value.1
+            )
+        })?;
+
+        Ok(Money {
             amount_base: (amount.repr / FRAC_SCALE_I128) as u64,
             amount_atto: (amount.repr % FRAC_SCALE_I128) as u64 / 10,
             currency,
-        }
+        })
     }
 }
 
-impl From<(i32, &str)> for Money {
-    fn from(value: (i32, &str)) -> Self {
-        let currency = value.1.to_string();
-        Money {
+impl TryFrom<(i32, &str)> for Money {
+    type Error = anyhow::Error;
+
+    fn try_from(value: (i32, &str)) -> Result<Self, Self::Error> {
+        let currency = currencies::Currency::try_from(value.1).map_err(|_| {
+            anyhow::anyhow!(
+                "Provided invalid currency code: {}, expected ISO 4217 code",
+                value.1
+            )
+        })?;
+
+        Ok(Money {
             amount_base: u64::from(value.0.unsigned_abs()),
             amount_atto: 0,
             currency,
-        }
+        })
     }
 }
-impl From<(u32, &str)> for Money {
-    fn from(value: (u32, &str)) -> Self {
-        let currency = value.1.to_string();
-        Money {
+impl TryFrom<(u32, &str)> for Money {
+    type Error = anyhow::Error;
+
+    fn try_from(value: (u32, &str)) -> Result<Self, Self::Error> {
+        let currency = currencies::Currency::try_from(value.1).map_err(|_| {
+            anyhow::anyhow!(
+                "Provided invalid currency code: {}, expected ISO 4217 code",
+                value.1
+            )
+        })?;
+
+        Ok(Money {
             amount_base: u64::from(value.0),
             amount_atto: 0,
             currency,
-        }
+        })
     }
 }
-impl From<(i64, &str)> for Money {
-    fn from(value: (i64, &str)) -> Self {
-        let currency = value.1.to_string();
-        Money {
+impl TryFrom<(i64, &str)> for Money {
+    type Error = anyhow::Error;
+
+    fn try_from(value: (i64, &str)) -> Result<Self, Self::Error> {
+        let currency = currencies::Currency::try_from(value.1).map_err(|_| {
+            anyhow::anyhow!(
+                "Provided invalid currency code: {}, expected ISO 4217 code",
+                value.1
+            )
+        })?;
+
+        Ok(Money {
             amount_base: value.0.unsigned_abs(),
             amount_atto: 0,
             currency,
-        }
+        })
     }
 }
-impl From<(u64, &str)> for Money {
-    fn from(value: (u64, &str)) -> Self {
-        let currency = value.1.to_string();
-        Money {
+impl TryFrom<(u64, &str)> for Money {
+    type Error = anyhow::Error;
+
+    fn try_from(value: (u64, &str)) -> Result<Self, Self::Error> {
+        let currency = currencies::Currency::try_from(value.1).map_err(|_| {
+            anyhow::anyhow!(
+                "Provided invalid currency code: {}, expected ISO 4217 code",
+                value.1
+            )
+        })?;
+
+        Ok(Money {
             amount_base: value.0,
             amount_atto: 0,
             currency,
-        }
+        })
     }
 }
 
@@ -82,14 +135,16 @@ mod tests {
 
     #[test]
     pub fn test_money_from() {
+        let currency = currencies::Currency::try_from("USD").unwrap();
+
         let money_1 = MoneyBuilder::default()
             .amount_base(1000u32)
             .amount_atto(554325 * 10u64.pow(12)) // .5
-            .currency("USD")
+            .currency(currency)
             .build()
             .unwrap();
 
-        let money_2: Money = (Dec19x19!(1000.554325), "USD").into();
+        let money_2: Money = (Dec19x19!(1000.554325), "132").try_into().unwrap();
 
         println!("Builder money:{:?}", money_1);
         println!("Converted money:{:?}", money_2);

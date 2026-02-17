@@ -137,6 +137,7 @@ mod dto_convert {
     use anyhow::anyhow;
     use chrono::{DateTime, Utc};
     use fingerprinting_core::Compact;
+    use fingerprinting_types::currencies::Currency;
     use fingerprinting_types::{Money, RawTransaction, RawTransactionBuilder};
     use halo2_axiom::halo2curves::bn256::Fr;
     use pilota::FastStr;
@@ -156,11 +157,12 @@ mod dto_convert {
         type Error = anyhow::Error;
 
         fn try_into(self) -> Result<Money, Self::Error> {
-            let currency = self.currency.to_string();
-            let currency = currency
-                .strip_prefix("CURRENCY_")
-                .ok_or(anyhow!("Provided invalid currency {}", currency))?
-                .to_string();
+            let currency_numeric_code = self.currency.inner();
+            let currency_numeric_code = u16::try_from(currency_numeric_code)
+                .map_err(|_| anyhow!("Invalid currency code"))?;
+
+            let currency = Currency::try_from(currency_numeric_code)
+                .map_err(|_| anyhow!("Invalid of unknown currency"))?;
 
             Ok(Money {
                 amount_base: self.units,
@@ -218,7 +220,7 @@ mod dto_convert {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::{Datelike, Utc};
+    use chrono::Utc;
     use fingerprinting_core::Compact;
     use lazy_static::lazy_static;
     use std::net::SocketAddr;

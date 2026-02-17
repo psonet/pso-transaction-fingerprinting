@@ -53,7 +53,7 @@ impl HashSqueeze<Fr> for G1 {
             })
             .collect();
 
-        let mut poseidon = Poseidon::<Fr>::new_circom(1)?;
+        let mut poseidon = Poseidon::<Fr>::new_circom(2)?;
 
         let squeezed_salted_hash = poseidon.hash(frs.as_slice())?;
 
@@ -238,10 +238,8 @@ impl<F: PF> TryFrom<RawTransaction> for TransactionFingerprintData<F> {
     fn try_from(tx: RawTransaction) -> Result<Self, Self::Error> {
         let money = tx.amount;
 
-        let iso_currency_code = money
-            .currency
-            .parse::<u16>()
-            .map_err(|_| anyhow!("Currency code should be numeric"))?;
+        // Since the currency enum is repr(u16) it's safe to cast here
+        let iso_currency_code = money.currency as u16;
 
         let bic = BankIdentifierComponent::new(tx.bic.to_string());
         let amount = AmountComponent::new((money.amount_base, money.amount_atto));
@@ -285,7 +283,8 @@ mod tests {
 
     use crate::protocols::NaiveProtocol;
     use chrono::{TimeZone, Utc};
-    use fingerprinting_types::RawTransactionBuilder;
+    use fingerprinting_types::currencies::Currency;
+    use fingerprinting_types::{MoneyBuilder, RawTransactionBuilder};
     use halo2_axiom::arithmetic::Field;
     use rand_core::OsRng;
 
@@ -311,6 +310,9 @@ mod tests {
         let n = 100usize;
         println!("Phase 1 (Generate Test Data): {}", Utc::now());
 
+        let mut money_builder = MoneyBuilder::default();
+        let money_builder = money_builder.currency(Currency::Euro).amount_atto(0u64);
+
         for _i in 0..n {
             let tx_date = Utc
                 .with_ymd_and_hms(
@@ -323,9 +325,11 @@ mod tests {
                 )
                 .unwrap();
 
+            let amount = rng.random_range(1..1000u64);
+
             let tx: TransactionFingerprintData<Fr> = RawTransactionBuilder::default()
                 .bic("BCEELU21")
-                .amount((rng.random_range(1..1000), "EUR"))
+                .amount(money_builder.amount_base(amount).build().unwrap())
                 .date_time(tx_date)
                 .build()?
                 .try_into()?;

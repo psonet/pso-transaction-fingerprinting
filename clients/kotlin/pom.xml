@@ -5,7 +5,7 @@
     <artifactId>client-kotlin</artifactId>
     <packaging>jar</packaging>
 
-    <version>0.1.2</version>
+    <version>0.1.3</version>
     <name>Transaction Fingerprinting Kotlin Client</name>
     <description>Kotlin client for transaction fingerprinting service</description>
     <url>https://github.com/psobn/pso-transaction-fingerprinting</url>
