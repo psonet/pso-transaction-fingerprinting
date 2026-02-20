@@ -23,7 +23,7 @@ impl FingerprintComponent<(u64, u64), 32> for AmountComponent {
         // All amounts converted to smallest unit (atto) to eliminate decimal formatting differences
 
         // build uniform u256 with atto
-        let full_amount = U256::from(self.base) * U256::from(10 ^ 18) + U256::from(self.atto);
+        let full_amount = U256::from(self.base) * U256::from(10u64.pow(18)) + U256::from(self.atto);
         let full_amount_buffer = full_amount.to_big_endian();
 
         let written = buffer.write(&full_amount_buffer)?;

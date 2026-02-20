@@ -66,7 +66,7 @@ impl SqueezeComponent<Fr> for DateTimeComponent {
     fn squeeze(&self) -> Result<Fr, Error> {
         let amount_base = U256::from(self.raw.amount.0);
         let amount_atto = U256::from(self.raw.amount.1);
-        let full_amount = amount_base * U256::from(10 ^ 18) + amount_atto;
+        let full_amount = amount_base * U256::from(10u64.pow(18)) + amount_atto;
 
         let date_time = self.raw.date_time;
         let seconds_since_epoch = date_time
