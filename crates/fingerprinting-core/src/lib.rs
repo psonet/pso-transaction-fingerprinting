@@ -27,7 +27,7 @@ pub(crate) static EPOCH: NaiveDateTime = NaiveDateTime::new(
     NaiveTime::from_hms_opt(0, 0, 0).unwrap(),
 );
 
-pub const HASH_TO_CURVE_PREFIX: &str = "CRA_FINGERPRINT";
+pub const HASH_TO_CURVE_PREFIX: &str = "TX_FINGERPRINT";
 
 pub trait HashSqueeze<F: PF> {
     fn squeeze(&self) -> Result<F, Error>;

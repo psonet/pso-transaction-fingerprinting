@@ -49,7 +49,7 @@ message ComputeBatchFingerprintResponse {
 
 /**
  * Fingerprint Service for computing transactions fingerprints
- * This service is used for external clients such as CRA
+ * This service is used for external clients such as SRA
  */
 service FingerprintService {
   // Perform computation of single transaction fingerprint

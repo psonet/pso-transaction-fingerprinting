@@ -54,7 +54,7 @@ async fn main() -> Result<(), anyhow::Error> {
         .fingerprint_service
     {
         FingerprintServiceConfig::Cooperative(topology_config) => {
-            log::info!("== Starting CRA Fingerprint agent in Cooperative mode with {} agents and {} threshold", topology_config.agents, topology_config.threshold);
+            log::info!("== Starting SRA Fingerprint agent in Cooperative mode with {} agents and {} threshold", topology_config.agents, topology_config.threshold);
             let topology = GrpcAgentsTopology::new(
                 topology_config.agents,
                 topology_config.threshold,
@@ -98,7 +98,7 @@ async fn main() -> Result<(), anyhow::Error> {
         }
         FingerprintServiceConfig::Naive(naive) => {
             log::warn!(
-                "== Starting CRA Fingerprint agent in Naive mode with predefined secret: {}",
+                "== Starting SRA Fingerprint agent in Naive mode with predefined secret: {}",
                 naive.secret
             );
             let secret: Fr = Compact::unwrap(&naive.secret)?;
